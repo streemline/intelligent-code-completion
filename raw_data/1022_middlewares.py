@@ -22,10 +22,7 @@ def error_pages(overrides):
             try:
                 response = await handler(request)
                 override = overrides.get(response.status)
-                if override is None:
-                    return response
-                else:
-                    return await override(request, response)
+                return response if override is None else await override(request, response)
             except web.HTTPException as ex:
                 override = overrides.get(ex.status)
                 if override is None:

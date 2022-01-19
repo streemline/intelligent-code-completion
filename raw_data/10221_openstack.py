@@ -133,9 +133,7 @@ class OpenStackLatentWorker(AbstractLatentWorker):
             boot_index: Integer used for boot order.
             volume_size: Size of the device in GiB.
         """
-        client_block_device = {}
-        client_block_device['device_name'] = block_device.get(
-            'device_name', 'vda')
+        client_block_device = {'device_name': block_device.get('device_name', 'vda')}
         client_block_device['source_type'] = block_device.get(
             'source_type', 'image')
         client_block_device['destination_type'] = block_device.get(
@@ -172,8 +170,7 @@ class OpenStackLatentWorker(AbstractLatentWorker):
             image = nova.images.get(source_uuid)
             if hasattr(image, 'OS-EXT-IMG-SIZE:size'):
                 size = getattr(image, 'OS-EXT-IMG-SIZE:size')
-                size_gb = int(math.ceil(size / 1024.0**3))
-                return size_gb
+                return int(math.ceil(size / 1024.0**3))
         elif source_type == 'volume':
             # Volumes are easy because they are already in GiB.
             volume = nova.volumes.get(source_uuid)
@@ -254,8 +251,7 @@ class OpenStackLatentWorker(AbstractLatentWorker):
                 raise LatentWorkerFailedToSubstantiate(
                     instance.id, instance.status)
         if instance.status == ACTIVE:
-            minutes = duration // 60
-            seconds = duration % 60
+            minutes, seconds = divmod(duration, 60)
             log.msg('%s %s instance %s (%s) started '
                     'in about %d minutes %d seconds' %
                     (self.__class__.__name__, self.workername,

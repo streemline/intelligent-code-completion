@@ -69,9 +69,12 @@ class DockerBaseWorker(AbstractLatentWorker):
         # container is almost immediate, we can afford doing so for each build.
         if 'build_wait_timeout' not in kwargs:
             kwargs['build_wait_timeout'] = 0
-        if image is not None and not isinstance(image, str):
-            if not hasattr(image, 'getRenderingFor'):
-                config.error("image must be a string")
+        if (
+            image is not None
+            and not isinstance(image, str)
+            and not hasattr(image, 'getRenderingFor')
+        ):
+            config.error("image must be a string")
 
         AbstractLatentWorker.checkConfig(self, name, password, **kwargs)
 
@@ -96,9 +99,7 @@ class DockerBaseWorker(AbstractLatentWorker):
 
     @property
     def shortid(self):
-        if self.instance is None:
-            return None
-        return self.instance['Id'][:6]
+        return None if self.instance is None else self.instance['Id'][:6]
 
     def createEnvironment(self):
         result = {
@@ -184,11 +185,11 @@ class DockerLatentWorker(DockerBaseWorker):
         return volume_list, binds
 
     def _getDockerClient(self):
-        if docker.version[0] == '1':
-            docker_client = client.Client(**self.client_args)
-        else:
-            docker_client = client.APIClient(**self.client_args)
-        return docker_client
+        return (
+            client.Client(**self.client_args)
+            if docker.version[0] == '1'
+            else client.APIClient(**self.client_args)
+        )
 
     @defer.inlineCallbacks
     def start_instance(self, build):

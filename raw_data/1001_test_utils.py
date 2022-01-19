@@ -62,10 +62,7 @@ class BaseTestServer(ABC):
         self.port = self._socket.getsockname()[1]
         self._ssl = kwargs.pop('ssl', None)
         if self.scheme is sentinel:
-            if self._ssl:
-                scheme = 'https'
-            else:
-                scheme = 'http'
+            scheme = 'https' if self._ssl else 'http'
             self.scheme = scheme
         self._root = URL('{}://{}:{}'.format(self.scheme,
                                              self.host,
@@ -82,11 +79,10 @@ class BaseTestServer(ABC):
 
     def make_url(self, path):
         url = URL(path)
-        if not self.skip_url_asserts:
-            assert not url.is_absolute()
-            return self._root.join(url)
-        else:
+        if self.skip_url_asserts:
             return URL(str(self._root) + path)
+        assert not url.is_absolute()
+        return self._root.join(url)
 
     @property
     def started(self):
@@ -484,10 +480,7 @@ def _create_transport(sslcontext=None):
     transport = mock.Mock()
 
     def get_extra_info(key):
-        if key == 'sslcontext':
-            return sslcontext
-        else:
-            return None
+        return sslcontext if key == 'sslcontext' else None
 
     transport.get_extra_info.side_effect = get_extra_info
     return transport

@@ -25,7 +25,7 @@ assert defaultdict
 class KeyedSets:
 
     def __init__(self):
-        self.d = dict()
+        self.d = {}
 
     def add(self, key, value):
         if key not in self.d:
@@ -45,6 +45,4 @@ class KeyedSets:
         return self.d.get(key, set())
 
     def pop(self, key):
-        if key in self.d:
-            return self.d.pop(key)
-        return set()
+        return self.d.pop(key) if key in self.d else set()

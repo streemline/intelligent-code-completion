@@ -374,11 +374,7 @@ class TestForceScheduler(scheduler.SchedulerMixin, ConfigErrorsMixin, unittest.T
         name = kwargs.setdefault('name', 'p1')
 
         # construct one if needed
-        if isinstance(klass, type):
-            prop = klass(**kwargs)
-        else:
-            prop = klass
-
+        prop = klass(**kwargs) if isinstance(klass, type) else klass
         self.assertEqual(prop.name, name)
         self.assertEqual(prop.label, kwargs.get('label', prop.name))
         if expectJson is not None:

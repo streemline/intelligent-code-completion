@@ -250,8 +250,7 @@ class Nightly(scheduler.SchedulerMixin, unittest.TestCase):
         self.db.state.assertStateByClass('test', 'Nightly',
                                          last_build=300 + self.localtime_offset)
 
-        d = sched.deactivate()
-        return d
+        return sched.deactivate()
 
     def do_test_iterations_onlyIfChanged(self, *changes_at, **kwargs):
         fII = mock.Mock(name='fII')

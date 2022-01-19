@@ -300,9 +300,8 @@ def predict(decoder, tokens):
     if next_wid == 0:
         if max_unk_literal is not None:
             return next_type, max_unk_literal
-        else:
-            vocab_p[0] = -np.inf
-            next_wid = vocab_p.argmax()
+        vocab_p[0] = -np.inf
+        next_wid = vocab_p.argmax()
     return next_type, literal_embed.wid2word[next_wid]
 
 
@@ -330,9 +329,8 @@ def accuracy(decoder, tokens):
         if next_wid == 0:
             if max_unk_literal is not None:
                 return next_type, max_unk_literal
-            else:
-                vocab_p[0] = -np.inf
-                next_wid = vocab_p.argmax()
+            vocab_p[0] = -np.inf
+            next_wid = vocab_p.argmax()
         return next_type, literal_embed.wid2word[next_wid]
     def compare(token1, token2):
         token1_type, token1_literal = token1

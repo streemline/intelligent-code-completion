@@ -219,9 +219,7 @@ class TestLoadOptionsFile(dirs.DirsMixin, misc.StdoutAssertionsMixin,
 
         def dirname(p):
             # bottom out at self.dir, rather than /
-            if p == self.dir:
-                return p
-            return old_dirname(p)
+            return p if p == self.dir else old_dirname(p)
         patches.append(self.patch(os.path, 'dirname', dirname))
 
         try:

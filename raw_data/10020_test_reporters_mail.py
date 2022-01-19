@@ -342,5 +342,4 @@ class TestMailNotifier(ConfigErrorsMixin, unittest.TestCase, NotifierTestMixin):
 
 def create_msgdict(funny_chars=u'\u00E5\u00E4\u00F6'):
     unibody = u'Unicode body with non-ascii (%s).' % funny_chars
-    msg_dict = dict(body=unibody, type='plain')
-    return msg_dict
+    return dict(body=unibody, type='plain')

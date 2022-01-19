@@ -91,13 +91,13 @@ class TestHumanReadableDelta(unittest.TestCase):
         result = util.human_readable_delta(1, 62)
         self.assertEqual('1 minutes, 1 seconds', result)
 
-        result = util.human_readable_delta(1, 60 * 60 + 1)
+        result = util.human_readable_delta(1, 60**2 + 1)
         self.assertEqual('1 hours', result)
 
-        result = util.human_readable_delta(1, 60 * 60 + 61)
+        result = util.human_readable_delta(1, 60**2 + 61)
         self.assertEqual('1 hours, 1 minutes', result)
 
-        result = util.human_readable_delta(1, 60 * 60 + 62)
+        result = util.human_readable_delta(1, 60**2 + 62)
         self.assertEqual('1 hours, 1 minutes, 1 seconds', result)
 
         result = util.human_readable_delta(1, 24 * 60 * 60 + 1)

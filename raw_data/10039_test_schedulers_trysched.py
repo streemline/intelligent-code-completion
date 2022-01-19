@@ -824,9 +824,8 @@ class Try_Userpass(scheduler.SchedulerMixin, unittest.TestCase):
         self.tearDownScheduler()
 
     def makeScheduler(self, **kwargs):
-        sched = self.attachScheduler(trysched.Try_Userpass(**kwargs),
+        return self.attachScheduler(trysched.Try_Userpass(**kwargs),
                                      self.OBJECTID, self.SCHEDULERID)
-        return sched
 
     def test_service(self):
         sched = self.makeScheduler(name='tsched', builderNames=['a'],

@@ -63,12 +63,10 @@ class Triggerable(scheduler.SchedulerMixin, unittest.TestCase):
     def makeScheduler(self, overrideBuildsetMethods=False, **kwargs):
         self.master.db.insertTestData([fakedb.Builder(id=77, name='b')])
 
-        sched = self.attachScheduler(
+        return self.attachScheduler(
             triggerable.Triggerable(name='n', builderNames=['b'], **kwargs),
             self.OBJECTID, self.SCHEDULERID,
             overrideBuildsetMethods=overrideBuildsetMethods)
-
-        return sched
 
     @defer.inlineCallbacks
     def assertTriggeredBuildset(self, idsDeferred, waited_for, properties=None, sourcestamps=None):

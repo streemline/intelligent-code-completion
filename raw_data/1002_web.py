@@ -423,7 +423,7 @@ def run_app(app, *, host=None, port=None, path=None, sock=None,
     loop.run_until_complete(app.startup())
 
     try:
-        make_handler_kwargs = dict()
+        make_handler_kwargs = {}
         if access_log_format is not None:
             make_handler_kwargs['access_log_format'] = access_log_format
         handler = app.make_handler(loop=loop, access_log=access_log,

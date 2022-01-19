@@ -115,8 +115,7 @@ class TestGPOMixin(unittest.TestCase):
     def test_gpo_wrongCommand(self):
         def method(testcase):
             testcase.expectCommands(Expect("command2"))
-            d = utils.getProcessOutput("command", ())
-            return d
+            return utils.getProcessOutput("command", ())
         result = self.runTestMethod(method)
         self.assertTestFailure(result, "unexpected command run")
         # assert we have a meaningful message
@@ -161,9 +160,8 @@ class TestGPOMixin(unittest.TestCase):
     def test_gpo_errorOutput(self):
         def method(testcase):
             testcase.expectCommands(Expect("command").stderr(b"some test"))
-            d = testcase.assertFailure(
+            return testcase.assertFailure(
                 utils.getProcessOutput("command", ()), [IOError])
-            return d
         result = self.runTestMethod(method)
         self.assertTestFailure(result, "got stderr: " + repr(b'some test'))
 
@@ -223,9 +221,8 @@ class TestGPOMixin(unittest.TestCase):
         def method(testcase):
             testcase.expectCommands(Expect("command"))
             testcase.addGetProcessOutputExpectEnv({'key': 'value'})
-            d = utils.getProcessOutput(
+            return utils.getProcessOutput(
                 "command", (), env={'key': 'wrongvalue'})
-            return d
         result = self.runTestMethod(method)
         self.assertTestFailure(
             result, "Expected environment to have key = 'value'")
@@ -234,8 +231,7 @@ class TestGPOMixin(unittest.TestCase):
         def method(testcase):
             testcase.expectCommands(Expect("command"))
             testcase.addGetProcessOutputExpectEnv({'key': 'value'})
-            d = utils.getProcessOutput("command", ())
-            return d
+            return utils.getProcessOutput("command", ())
         result = self.runTestMethod(method)
         self.assertTestFailure(
             result, "Expected environment to have key = 'value'")

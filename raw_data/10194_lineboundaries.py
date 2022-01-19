@@ -75,6 +75,4 @@ class LineBoundaryFinder(object):
         return defer.succeed(None)
 
     def flush(self):
-        if self.partialLine:
-            return self.append('\n')
-        return defer.succeed(None)
+        return self.append('\n') if self.partialLine else defer.succeed(None)

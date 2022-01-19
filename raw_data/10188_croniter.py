@@ -67,7 +67,7 @@ class croniter(object):
         self.cur = start_time
         self.exprs = expr_format.split()
 
-        if len(self.exprs) != 5 and len(self.exprs) != 6:
+        if len(self.exprs) not in [5, 6]:
             raise ValueError(self.bad_length)
 
         expanded = []
@@ -297,7 +297,7 @@ class croniter(object):
         return small[0]
 
     def _get_next_nearest_diff(self, x, to_check, range_val):
-        for i, d in enumerate(to_check):
+        for d in to_check:
             if d >= x:
                 return d - x
         return to_check[0] - x + range_val

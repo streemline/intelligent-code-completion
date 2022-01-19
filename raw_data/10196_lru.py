@@ -99,7 +99,7 @@ class LRUCache(object):
 
         # refcount should always represent the number of times each key appears
         # in the queue
-        exp_refcount = dict()
+        exp_refcount = {}
         for k in self.queue:
             exp_refcount[k] = exp_refcount.get(k, 0) + 1
         if exp_refcount != self.refcount:

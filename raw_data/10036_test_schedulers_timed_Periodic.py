@@ -100,8 +100,7 @@ class Periodic(scheduler.SchedulerMixin, unittest.TestCase):
         self.assertEqual(self.events, ['B@0', 'B@13', 'B@26'])
         self.assertEqual(self.state.get('last_build'), 26)
 
-        d = sched.deactivate()
-        return d
+        return sched.deactivate()
 
     def test_iterations_simple_branch(self):
         sched = self.makeScheduler(exp_branch='newfeature',
@@ -115,8 +114,7 @@ class Periodic(scheduler.SchedulerMixin, unittest.TestCase):
         self.assertEqual(self.events, ['B@0', 'B@13', 'B@26'])
         self.assertEqual(self.state.get('last_build'), 26)
 
-        d = sched.deactivate()
-        return d
+        return sched.deactivate()
 
     def test_iterations_long(self):
         sched = self.makeScheduler(name='test', builderNames=['test'],
@@ -130,8 +128,7 @@ class Periodic(scheduler.SchedulerMixin, unittest.TestCase):
         self.assertEqual(self.events, ['B@0', 'B@15', 'B@25', 'B@35'])
         self.assertEqual(self.state.get('last_build'), 35)
 
-        d = sched.deactivate()
-        return d
+        return sched.deactivate()
 
     def test_iterations_stop_while_starting_build(self):
         sched = self.makeScheduler(name='test', builderNames=['test'],
@@ -170,8 +167,7 @@ class Periodic(scheduler.SchedulerMixin, unittest.TestCase):
         self.assertEqual(self.events, ['B@6', 'B@19'])
         self.assertEqual(self.state.get('last_build'), 19)
 
-        d = sched.deactivate()
-        return d
+        return sched.deactivate()
 
     def test_getNextBuildTime_None(self):
         sched = self.makeScheduler(name='test', builderNames=['test'],

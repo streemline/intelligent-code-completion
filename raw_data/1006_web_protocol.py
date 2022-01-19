@@ -151,14 +151,8 @@ class RequestHandler(asyncio.streams.FlowControlMixin, asyncio.Protocol):
 
     def __repr__(self):
         self._request = None
-        if self._request is None:
-            meth = 'none'
-            path = 'none'
-        else:
-            meth = 'none'
-            path = 'none'
-            # meth = self._request.method
-            # path = self._request.rel_url.raw_path
+        meth = 'none'
+        path = 'none'
         return "<{} {}:{} {}>".format(
             self.__class__.__name__, meth, path,
             'connected' if self.transport is not None else 'disconnected')
@@ -246,9 +240,8 @@ class RequestHandler(asyncio.streams.FlowControlMixin, asyncio.Protocol):
             if not handler.done():
                 handler.cancel()
 
-        if self._error_handler is not None:
-            if not self._error_handler.done():
-                self._error_handler.cancel()
+        if self._error_handler is not None and not self._error_handler.done():
+            self._error_handler.cancel()
 
         self._request_handlers = ()
 
@@ -312,11 +305,9 @@ class RequestHandler(asyncio.streams.FlowControlMixin, asyncio.Protocol):
                 if upgraded and tail:
                     self._message_tail = tail
 
-        # no parser, just store
-        elif self._payload_parser is None and self._upgrade and data:
+        elif self._payload_parser is None and data:
             self._message_tail += data
 
-        # feed payload
         elif data:
             eof, tail = self._payload_parser.feed_data(data)
             if eof:
@@ -488,33 +479,31 @@ class RequestHandler(asyncio.streams.FlowControlMixin, asyncio.Protocol):
                     if self._messages:
                         message, payload = self._messages.popleft()
                     else:
-                        if self._keepalive and not self._close:
-                            # start keep-alive timer
-                            if keepalive_timeout is not None:
-                                now = self._time_service.loop_time
-                                self._keepalive_time = now
-                                if self._keepalive_handle is None:
-                                    self._keepalive_handle = loop.call_at(
-                                        now + keepalive_timeout,
-                                        self._process_keepalive)
-
-                            # wait for next request
-                            waiter = create_future(loop)
-                            self._waiters.append(waiter)
-                            try:
-                                message, payload = yield from waiter
-                            except asyncio.CancelledError:
-                                # shutdown process
-                                break
-                        else:
+                        if not self._keepalive or self._close:
                             break
 
+                        # start keep-alive timer
+                        if keepalive_timeout is not None:
+                            now = self._time_service.loop_time
+                            self._keepalive_time = now
+                            if self._keepalive_handle is None:
+                                self._keepalive_handle = loop.call_at(
+                                    now + keepalive_timeout,
+                                    self._process_keepalive)
+
+                        # wait for next request
+                        waiter = create_future(loop)
+                        self._waiters.append(waiter)
+                        try:
+                            message, payload = yield from waiter
+                        except asyncio.CancelledError:
+                            # shutdown process
+                            break
         # remove handler, close transport if no handlers left
         if not self._force_close:
             self._request_handlers.remove(handler)
-            if not self._request_handlers:
-                if self.transport is not None:
-                    self.transport.close()
+            if not self._request_handlers and self.transport is not None:
+                self.transport.close()
 
     def handle_error(self, request, status=500, exc=None, message=None):
         """Handle errors.

@@ -46,10 +46,7 @@ class BuildLookAlike(object):
     def __eq__(self, b):
         if sorted(b.keys()) != self.keys:
             return False
-        for k, v in self.assertions.items():
-            if b[k] != v:
-                return False
-        return True
+        return all(b[k] == v for k, v in self.assertions.items())
 
     def __ne__(self, b):
         return not (self == b)

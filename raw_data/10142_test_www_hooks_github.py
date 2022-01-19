@@ -464,7 +464,7 @@ def _prepare_github_change_hook(**params):
 
 def _prepare_request(event, payload, _secret=None, headers=None):
     if headers is None:
-        headers = dict()
+        headers = {}
 
     request = FakeRequest()
 
