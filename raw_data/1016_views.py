@@ -30,15 +30,14 @@ async def index(request):
     while True:
         msg = await resp.receive()
 
-        if msg.type == web.MsgType.text:
-            for ws in request.app['sockets'].values():
-                if ws is not resp:
-                    await ws.send_str(json.dumps({'action': 'sent',
-                                                  'name': name,
-                                                  'text': msg.data}))
-        else:
+        if msg.type != web.MsgType.text:
             break
 
+        for ws in request.app['sockets'].values():
+            if ws is not resp:
+                await ws.send_str(json.dumps({'action': 'sent',
+                                              'name': name,
+                                              'text': msg.data}))
     del request.app['sockets'][name]
     log.info('%s disconnected.', name)
     for ws in request.app['sockets'].values():

@@ -444,17 +444,13 @@ class TestP4(sourcesteps.SourceStepMixin, unittest.TestCase):
         View:
         \t//depot/trunk/... //p4_client1/...
         ''' % root_dir)
-        self._incremental(client_stdin=client_spec, timeout=60 * 60)
+        self._incremental(client_stdin=client_spec, timeout=60**2)
 
     def _full(self, client_stdin='', p4client='p4_client1', p4user='user',
               workdir='wkdir', extra_args=None, obfuscated_pass=True):
         if extra_args is None:
             extra_args = []
-        if obfuscated_pass:
-            expected_pass = ('obfuscated', 'pass', 'XXXXXX')
-        else:
-            expected_pass = 'pass'
-
+        expected_pass = ('obfuscated', 'pass', 'XXXXXX') if obfuscated_pass else 'pass'
         self.expectCommands(
             ExpectShell(workdir=workdir,
                         command=['p4', '-V'])  # expected remote command

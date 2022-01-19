@@ -91,14 +91,15 @@ def enable_trace(case, trace_exclusions=None, f=sys.stdout):
     state = {'indent': 0}
 
     def tracefunc(frame, event, arg):
-        if frame.f_code.co_filename.startswith(bbbase):
-            if not any(te in frame.f_code.co_filename for te in trace_exclusions):
-                if event == "call":
-                    state['indent'] += 2
-                    print("-" * state['indent'], frame.f_code.co_filename.replace(bbbase, ""),
-                          frame.f_code.co_name, frame.f_code.co_varnames, file=f)
-                if event == "return":
-                    state['indent'] -= 2
+        if frame.f_code.co_filename.startswith(bbbase) and all(
+            te not in frame.f_code.co_filename for te in trace_exclusions
+        ):
+            if event == "call":
+                state['indent'] += 2
+                print("-" * state['indent'], frame.f_code.co_filename.replace(bbbase, ""),
+                      frame.f_code.co_name, frame.f_code.co_varnames, file=f)
+            if event == "return":
+                state['indent'] -= 2
         return tracefunc
 
     sys.settrace(tracefunc)

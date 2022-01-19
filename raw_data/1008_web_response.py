@@ -50,11 +50,7 @@ class StreamResponse(HeadersMixin):
         self._eof_sent = False
         self._body_length = 0
 
-        if headers is not None:
-            self._headers = CIMultiDict(headers)
-        else:
-            self._headers = CIMultiDict()
-
+        self._headers = CIMultiDict(headers) if headers is not None else CIMultiDict()
         self.set_status(status, reason)
 
     @property
@@ -290,10 +286,7 @@ class StreamResponse(HeadersMixin):
 
     def _generate_content_type_header(self, CONTENT_TYPE=hdrs.CONTENT_TYPE):
         params = '; '.join("%s=%s" % i for i in self._content_dict.items())
-        if params:
-            ctype = self._content_type + '; ' + params
-        else:
-            ctype = self._content_type
+        ctype = self._content_type + '; ' + params if params else self._content_type
         self.headers[CONTENT_TYPE] = ctype
 
     def _do_start_compression(self, coding):
@@ -383,9 +376,8 @@ class StreamResponse(HeadersMixin):
             if keep_alive:
                 if version == HttpVersion10:
                     headers[CONNECTION] = 'keep-alive'
-            else:
-                if version == HttpVersion11:
-                    headers[CONNECTION] = 'close'
+            elif version == HttpVersion11:
+                headers[CONNECTION] = 'close'
 
         # status line
         status_line = 'HTTP/{}.{} {} {}\r\n'.format(
@@ -457,36 +449,43 @@ class Response(StreamResponse):
             raise ValueError("charset must not be in content_type "
                              "argument")
 
-        if text is not None:
-            if hdrs.CONTENT_TYPE in headers:
-                if content_type or charset:
-                    raise ValueError("passing both Content-Type header and "
-                                     "content_type or charset params "
-                                     "is forbidden")
-            else:
-                # fast path for filling headers
-                if not isinstance(text, str):
-                    raise TypeError("text argument must be str (%r)" %
-                                    type(text))
-                if content_type is None:
-                    content_type = 'text/plain'
-                if charset is None:
-                    charset = 'utf-8'
-                headers[hdrs.CONTENT_TYPE] = (
-                    content_type + '; charset=' + charset)
-                body = text.encode(charset)
-                text = None
+        if (
+            text is not None
+            and hdrs.CONTENT_TYPE in headers
+            and (content_type or charset)
+            or text is None
+            and hdrs.CONTENT_TYPE in headers
+            and (content_type is not None or charset is not None)
+        ):
+            raise ValueError("passing both Content-Type header and "
+                             "content_type or charset params "
+                             "is forbidden")
+        elif (
+            text is not None
+            and hdrs.CONTENT_TYPE in headers
+            or text is None
+            and hdrs.CONTENT_TYPE in headers
+            or text is None
+            and content_type is None
+        ):
+            pass
+        elif text is not None:
+            # fast path for filling headers
+            if not isinstance(text, str):
+                raise TypeError("text argument must be str (%r)" %
+                                type(text))
+            if content_type is None:
+                content_type = 'text/plain'
+            if charset is None:
+                charset = 'utf-8'
+            headers[hdrs.CONTENT_TYPE] = (
+                content_type + '; charset=' + charset)
+            body = text.encode(charset)
+            text = None
         else:
-            if hdrs.CONTENT_TYPE in headers:
-                if content_type is not None or charset is not None:
-                    raise ValueError("passing both Content-Type header and "
-                                     "content_type or charset params "
-                                     "is forbidden")
-            else:
-                if content_type is not None:
-                    if charset is not None:
-                        content_type += '; charset=' + charset
-                    headers[hdrs.CONTENT_TYPE] = content_type
+            if charset is not None:
+                content_type += '; charset=' + charset
+            headers[hdrs.CONTENT_TYPE] = content_type
 
         super().__init__(status=status, reason=reason, headers=headers)
 
@@ -590,25 +589,28 @@ class Response(StreamResponse):
             body = self._compressed_body
         else:
             body = self._body
-        if body is not None:
-            if (self._req._method == hdrs.METH_HEAD or
-                    self._status in [204, 304]):
-                yield from super().write_eof()
-            elif self._body_payload:
-                yield from body.write(self._payload_writer)
-                yield from super().write_eof()
-            else:
-                yield from super().write_eof(body)
-        else:
+        if body is None:
             yield from super().write_eof()
 
+        elif (self._req._method == hdrs.METH_HEAD or
+                    self._status in [204, 304]):
+            yield from super().write_eof()
+        elif self._body_payload:
+            yield from body.write(self._payload_writer)
+            yield from super().write_eof()
+        else:
+            yield from super().write_eof(body)
+
     def _start(self, request):
-        if not self._chunked and hdrs.CONTENT_LENGTH not in self._headers:
-            if not self._body_payload:
-                if self._body is not None:
-                    self._headers[hdrs.CONTENT_LENGTH] = str(len(self._body))
-                else:
-                    self._headers[hdrs.CONTENT_LENGTH] = '0'
+        if (
+            not self._chunked
+            and hdrs.CONTENT_LENGTH not in self._headers
+            and not self._body_payload
+        ):
+            if self._body is not None:
+                self._headers[hdrs.CONTENT_LENGTH] = str(len(self._body))
+            else:
+                self._headers[hdrs.CONTENT_LENGTH] = '0'
 
         return super()._start(request)
 

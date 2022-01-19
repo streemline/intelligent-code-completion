@@ -56,8 +56,7 @@ class DebounceTest(unittest.TestCase):
         self.clock = task.Clock()
 
     def scenario(self, events):
-        dbs = dict((k, DebouncedClass(self.clock))
-                   for k in set([n for n, _, _ in events]))
+        dbs = {k: DebouncedClass(self.clock) for k in {n for n, _, _ in events}}
         while events:
             n, t, e = events.pop(0)
             db = dbs[n]

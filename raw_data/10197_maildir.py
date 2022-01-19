@@ -117,10 +117,7 @@ class MaildirService(service.AsyncMultiService):
             for f in self.files:
                 if not os.path.isfile(os.path.join(self.newdir, f)):
                     self.files.remove(f)
-            newfiles = []
-            for f in os.listdir(self.newdir):
-                if f not in self.files:
-                    newfiles.append(f)
+            newfiles = [f for f in os.listdir(self.newdir) if f not in self.files]
             self.files.extend(newfiles)
             for n in newfiles:
                 try:

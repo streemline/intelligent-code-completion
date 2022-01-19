@@ -114,9 +114,7 @@ class LRUCacheTest(unittest.TestCase):
     def test_simple_lru_expulsion_maxsize_1_null_result(self):
         # a regression test for #2011
         def miss_fn(k):
-            if k == 'b':
-                return None
-            return short(k)
+            return None if k == 'b' else short(k)
         self.lru = lru.LRUCache(miss_fn, 1)
         val = self.lru.get('a')
         self.check_result(val, short('a'), 0, 1)
@@ -205,7 +203,7 @@ class LRUCacheTest(unittest.TestCase):
     def test_fuzz(self):
         chars = list(string.ascii_lowercase * 40)
         random.shuffle(chars)
-        for i, c in enumerate(chars):
+        for c in chars:
             res = self.lru.get(c)
             self.check_result(res, short(c))
 
@@ -364,9 +362,7 @@ class AsyncLRUCacheTest(unittest.TestCase):
     def test_simple_lru_expulsion_maxsize_1_null_result(self):
         # a regression test for #2011
         def miss_fn(k):
-            if k == 'b':
-                return defer.succeed(None)
-            return defer.succeed(short(k))
+            return defer.succeed(None) if k == 'b' else defer.succeed(short(k))
         self.lru = lru.AsyncLRUCache(miss_fn, 1)
         d = defer.succeed(None)
 
@@ -467,7 +463,7 @@ class AsyncLRUCacheTest(unittest.TestCase):
     def test_fuzz(self):
         chars = list(string.ascii_lowercase * 40)
         random.shuffle(chars)
-        for i, c in enumerate(chars):
+        for c in chars:
             res = yield self.lru.get(c)
             self.check_result(res, short(c))
 

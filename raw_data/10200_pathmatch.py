@@ -67,14 +67,12 @@ class Matcher(object):
                         except Exception:
                             break
                     kwargs[arg_name] = path_elt
-                else:
-                    if pattern_elt != path_elt:
-                        break
+                elif pattern_elt != path_elt:
+                    break
             else:
                 # complete match
                 return patterns[pattern], kwargs
-        else:
-            raise KeyError('No match for %r' % (path,))
+        raise KeyError('No match for %r' % (path,))
 
     def iterPatterns(self):
         return list(iteritems(self._patterns))

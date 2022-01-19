@@ -77,10 +77,9 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
         if self.bindUser is None and self.bindPw is None:
             auth = ldap3.ANONYMOUS
 
-        c = ldap3.Connection(s, auto_bind=True, client_strategy=ldap3.SYNC,
+        return ldap3.Connection(s, auto_bind=True, client_strategy=ldap3.SYNC,
                              user=self.bindUser, password=self.bindPw,
                              authentication=auth)
-        return c
 
     def search(self, c, base, filterstr='f', attributes=None):
         c.search(base, filterstr, ldap3.SUBTREE, attributes=attributes)
@@ -103,9 +102,7 @@ class LdapUserInfo(avatar.AvatarBase, auth.UserInfoProviderBase):
                 dn = dn.decode('utf-8')
 
             def getLdapInfo(x):
-                if isinstance(x, list):
-                    return x[0]
-                return x
+                return x[0] if isinstance(x, list) else x
             infos['full_name'] = getLdapInfo(ldap_infos[self.accountFullName])
             infos['email'] = getLdapInfo(ldap_infos[self.accountEmail])
             for f in self.accountExtraFields:

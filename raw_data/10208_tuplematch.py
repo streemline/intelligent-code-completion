@@ -20,7 +20,4 @@ from __future__ import print_function
 def matchTuple(routingKey, filter):
     if len(filter) != len(routingKey):
         return False
-    for k, f in zip(routingKey, filter):
-        if f is not None and f != k:
-            return False
-    return True
+    return not any(f is not None and f != k for k, f in zip(routingKey, filter))

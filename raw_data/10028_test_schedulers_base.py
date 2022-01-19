@@ -53,11 +53,10 @@ class BaseScheduler(scheduler.SchedulerMixin, unittest.TestCase):
             codebases = {'': {}}
 
         if isinstance(builderNames, list):
-            dbBuilder = list()
-            builderid = 0
-            for builderName in builderNames:
-                builderid += 1
-                dbBuilder.append(fakedb.Builder(id=builderid, name=builderName))
+            dbBuilder = [
+                fakedb.Builder(id=builderid, name=builderName)
+                for builderid, builderName in enumerate(builderNames, start=1)
+            ]
 
             self.master.db.insertTestData(dbBuilder)
 

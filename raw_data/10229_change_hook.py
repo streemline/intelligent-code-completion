@@ -159,11 +159,7 @@ class ChangeHookResource(resource.Resource):
         src = None
 
         # Was there a dialect provided?
-        if uriRE.group(1):
-            dialect = uriRE.group(1)
-        else:
-            dialect = 'base'
-
+        dialect = uriRE.group(1) or 'base'
         handler = self.makeHandler(dialect)
         changes, src = yield handler.getChanges(request)
         defer.returnValue((changes, src))

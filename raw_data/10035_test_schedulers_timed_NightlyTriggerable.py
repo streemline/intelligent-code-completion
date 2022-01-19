@@ -99,7 +99,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
                                    minute=[5])
 
         sched.activate()
-        self.clock.advance(60 * 60)  # Run for 1h
+        self.clock.advance(60**2)
 
         self.assertEqual(self.addBuildsetCalls, [])
 
@@ -114,7 +114,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
                  repository='r', codebase='cb'),
         ], set_props=None)
 
-        self.clock.advance(60 * 60)  # Run for 1h
+        self.clock.advance(60**2)
 
         self.assertBuildsetAdded(sourcestamps=[
             dict(codebase='cb', branch='br', project='p', repository='r',
@@ -136,7 +136,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
                  repository='r')
         ], set_props=None)
 
-        self.clock.advance(60 * 60)  # Run for 1h
+        self.clock.advance(60**2)
 
         self.assertBuildsetAdded(sourcestamps=[
             dict(codebase='cb', branch='br', project='p', repository='r',
@@ -162,7 +162,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
                  revision='myrev'),
         ])
 
-        self.clock.advance(60 * 60)  # Run for 1h
+        self.clock.advance(60**2)
 
         # no trigger, so the second did not build
         self.assertNoBuildsetAdded()
@@ -190,7 +190,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
                  repository='r')
         ], set_props=None)
 
-        self.clock.advance(60 * 60)  # Run for 1h
+        self.clock.advance(60**2)
 
         self.assertBuildsetAdded(sourcestamps=[
             dict(codebase='cb', branch='br', project='p', repository='r',
@@ -209,7 +209,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
 
         sched.activate()
 
-        self.clock.advance(60 * 60)  # Run for 1h
+        self.clock.advance(60**2)
 
         self.assertBuildsetAdded(sourcestamps=[
             dict(codebase='cb', branch='br', project='p', repository='r',
@@ -228,7 +228,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
 
         sched.activate()
 
-        self.clock.advance(60 * 60)  # Run for 1h
+        self.clock.advance(60**2)
 
         self.assertBuildsetAdded(sourcestamps=[
             dict(codebase='cb', branch='br', project='p', repository='r',
@@ -302,7 +302,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
                  branch='br', project='p', repository='r'),
         ], {'testprop': ['test', 'TEST']}, None, None])
 
-        self.clock.advance(60 * 60)  # Run for 1h
+        self.clock.advance(60**2)
 
         self.assertBuildsetAdded(
             properties=dict(testprop=('test', 'TEST')),
@@ -323,7 +323,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
 
         sched.activate()
 
-        self.clock.advance(60 * 60)  # Run for 1h
+        self.clock.advance(60**2)
 
         self.assertBuildsetAdded(
             properties={'testprop': (u'test', u'TEST')},

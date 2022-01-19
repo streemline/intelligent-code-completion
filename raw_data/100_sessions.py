@@ -262,7 +262,7 @@ class Session(object):
         return self.request('delete', url, **kwargs)
 
     def __getstate__(self):
-        return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+        return {attr: getattr(self, attr, None) for attr in self.__attrs__}
 
     def __setstate__(self, state):
         for attr, value in state.items():

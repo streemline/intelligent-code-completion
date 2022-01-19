@@ -57,8 +57,6 @@ class Debouncer(object):
             self.phase = PH_WAITING
         elif phase == PH_RUNNING:
             self.phase = PH_RUNNING_QUEUED
-        else:  # phase == PH_WAITING or phase == PH_RUNNING_QUEUED:
-            pass
 
     def __repr__(self):
         return "<debounced %r, wait=%r, phase=%d>" % (self.function,

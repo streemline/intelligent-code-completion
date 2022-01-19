@@ -265,8 +265,7 @@ class V2RootResource_REST(www.WwwTestMixin, unittest.TestCase):
     def assertRestCollection(self, typeName, items,
                              total=None, contentType=None, orderSignificant=False):
         self.assertFalse(isinstance(self.request.written, text_type))
-        got = {}
-        got['content'] = json.loads(bytes2NativeString(self.request.written))
+        got = {'content': json.loads(bytes2NativeString(self.request.written))}
         got['contentType'] = self.request.headers[b'content-type']
         got['responseCode'] = self.request.responseCode
 
@@ -274,10 +273,11 @@ class V2RootResource_REST(www.WwwTestMixin, unittest.TestCase):
         if total is not None:
             meta['total'] = total
 
-        exp = {}
-        exp['content'] = {typeName: items, 'meta': meta}
-        exp['contentType'] = [contentType or b'text/plain; charset=utf-8']
-        exp['responseCode'] = 200
+        exp = {
+            'content': {typeName: items, 'meta': meta},
+            'contentType': [contentType or b'text/plain; charset=utf-8'],
+            'responseCode': 200,
+        }
 
         # if order is not significant, sort so the comparison works
         if not orderSignificant:
@@ -292,30 +292,23 @@ class V2RootResource_REST(www.WwwTestMixin, unittest.TestCase):
 
     def assertRestDetails(self, typeName, item,
                           contentType=None):
-        got = {}
-        got['content'] = json.loads(bytes2NativeString(self.request.written))
+        got = {'content': json.loads(bytes2NativeString(self.request.written))}
         got['contentType'] = self.request.headers[b'content-type']
         got['responseCode'] = self.request.responseCode
 
-        exp = {}
-        exp['content'] = {
-            typeName: [item],
-            'meta': {},
+        exp = {
+            'content': {typeName: [item], 'meta': {}},
+            'contentType': [contentType or b'text/plain; charset=utf-8'],
+            'responseCode': 200,
         }
-        exp['contentType'] = [contentType or b'text/plain; charset=utf-8']
-        exp['responseCode'] = 200
 
         self.assertEqual(got, exp)
 
     def assertRestError(self, responseCode, message):
-        got = {}
-        got['content'] = json.loads(bytes2NativeString(self.request.written))
+        got = {'content': json.loads(bytes2NativeString(self.request.written))}
         got['responseCode'] = self.request.responseCode
 
-        exp = {}
-        exp['content'] = {'error': message}
-        exp['responseCode'] = responseCode
-
+        exp = {'content': {'error': message}, 'responseCode': responseCode}
         self.assertEqual(got, exp)
 
     @defer.inlineCallbacks
@@ -496,11 +489,15 @@ class V2RootResource_REST(www.WwwTestMixin, unittest.TestCase):
     @defer.inlineCallbacks
     def test_api_collection_filter_and_order(self):
         yield self.render_resource(self.rsrc, b'/test?field=info&order=info')
-        self.assertRestCollection(typeName='tests',
-                                  items=sorted(list([{'info': v['info']}
-                                                     for v in itervalues(endpoint.testData)]),
-                                               key=lambda v: v['info']),
-                                  total=8, orderSignificant=True)
+        self.assertRestCollection(
+            typeName='tests',
+            items=sorted(
+                [{'info': v['info']} for v in itervalues(endpoint.testData)],
+                key=lambda v: v['info'],
+            ),
+            total=8,
+            orderSignificant=True,
+        )
 
     @defer.inlineCallbacks
     def test_api_collection_order_desc(self):
@@ -513,11 +510,16 @@ class V2RootResource_REST(www.WwwTestMixin, unittest.TestCase):
     @defer.inlineCallbacks
     def test_api_collection_filter_and_order_desc(self):
         yield self.render_resource(self.rsrc, b'/test?field=info&order=-info')
-        self.assertRestCollection(typeName='tests',
-                                  items=sorted(list([{'info': v['info']}
-                                                     for v in itervalues(endpoint.testData)]),
-                                               key=lambda v: v['info'], reverse=True),
-                                  total=8, orderSignificant=True)
+        self.assertRestCollection(
+            typeName='tests',
+            items=sorted(
+                [{'info': v['info']} for v in itervalues(endpoint.testData)],
+                key=lambda v: v['info'],
+                reverse=True,
+            ),
+            total=8,
+            orderSignificant=True,
+        )
 
     @defer.inlineCallbacks
     def test_api_collection_order_on_unselected(self):
@@ -666,9 +668,11 @@ class V2RootResource_REST(www.WwwTestMixin, unittest.TestCase):
         self.assertRestAuthError(message=re.compile('no no'), responseCode=403)
 
     def assertRestAuthError(self, message, responseCode=400):
-        got = {}
-        got['contentType'] = self.request.headers[b'content-type']
-        got['responseCode'] = self.request.responseCode
+        got = {
+            'contentType': self.request.headers[b'content-type'],
+            'responseCode': self.request.responseCode,
+        }
+
         content = json.loads(bytes2NativeString(self.request.written))
 
         if 'error' not in content:
@@ -676,10 +680,11 @@ class V2RootResource_REST(www.WwwTestMixin, unittest.TestCase):
                       % (content,))
         got['error'] = content['error']
 
-        exp = {}
-        exp['contentType'] = [b'text/plain; charset=utf-8']
-        exp['responseCode'] = responseCode
-        exp['error'] = message
+        exp = {
+            'contentType': [b'text/plain; charset=utf-8'],
+            'responseCode': responseCode,
+            'error': message,
+        }
 
         # process a regular expression for message, if given
         if not isinstance(message, string_types):
@@ -705,9 +710,11 @@ class V2RootResource_JSONRPC2(www.WwwTestMixin, unittest.TestCase):
         self.rsrc.reconfigResource(self.master.config)
 
     def assertJsonRpcError(self, message, responseCode=400, jsonrpccode=None):
-        got = {}
-        got['contentType'] = self.request.headers[b'content-type']
-        got['responseCode'] = self.request.responseCode
+        got = {
+            'contentType': self.request.headers[b'content-type'],
+            'responseCode': self.request.responseCode,
+        }
+
         content = json.loads(bytes2NativeString(self.request.written))
         if ('error' not in content
                 or sorted(content['error'].keys()) != ['code', 'message']):
@@ -715,10 +722,11 @@ class V2RootResource_JSONRPC2(www.WwwTestMixin, unittest.TestCase):
                       % (content,))
         got['error'] = content['error']
 
-        exp = {}
-        exp['contentType'] = [b'application/json']
-        exp['responseCode'] = responseCode
-        exp['error'] = {'code': jsonrpccode, 'message': message}
+        exp = {
+            'contentType': [b'application/json'],
+            'responseCode': responseCode,
+            'error': {'code': jsonrpccode, 'message': message},
+        }
 
         # process a regular expression for message, if given
         if not isinstance(message, string_types):

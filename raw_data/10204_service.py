@@ -69,31 +69,21 @@ class AsyncService(service.Service, object):
     # We recurse over the parent services until we find a MasterService
     @property
     def master(self):
-        if self.parent is None:
-            return None
-        return self.parent.master
+        return None if self.parent is None else self.parent.master
 
 
 class AsyncMultiService(AsyncService, service.MultiService):
 
     def startService(self):
         service.Service.startService(self)
-        dl = []
-        # if a service attaches another service during the reconfiguration
-        # then the service will be started twice, so we don't use iter, but rather
-        # copy in a list
-        for svc in list(self):
-            # handle any deferreds, passing up errors and success
-            dl.append(defer.maybeDeferred(svc.startService))
+        dl = [defer.maybeDeferred(svc.startService) for svc in list(self)]
         return defer.gatherResults(dl, consumeErrors=True)
 
     def stopService(self):
         service.Service.stopService(self)
-        dl = []
         services = list(self)
         services.reverse()
-        for svc in services:
-            dl.append(defer.maybeDeferred(svc.stopService))
+        dl = [defer.maybeDeferred(svc.stopService) for svc in services]
         # unlike MultiService, consume errors in each individual deferred, and
         # pass the first error in a child service up to our caller
         return defer.gatherResults(dl, consumeErrors=True)
@@ -212,9 +202,9 @@ class BuildbotService(AsyncMultiService, config.ConfiguredMixin, util.Comparable
             if k in secrets:
                 value = yield p.render(v)
                 setattr(self, k, value)
-                kwargs.update({k: value})
+                kwargs[k] = value
             else:
-                kwargs.update({k: v})
+                kwargs[k] = v
         d = yield self.reconfigService(*sibling._config_args,
                                        **sibling._config_kwargs)
         defer.returnValue(d)

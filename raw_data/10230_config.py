@@ -93,7 +93,6 @@ class IndexResource(resource.Resource):
                             block, pretty=False)
                         html = compiler.compile()
                 res[template_name % (basename,)] = json.dumps(html)
-            pass
         return res
 
     @staticmethod

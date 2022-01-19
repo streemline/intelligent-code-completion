@@ -90,7 +90,6 @@ class TestLibVirtWorker(unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_prepare_base_image_full(self):
-        pass
         self.patch(utils, "getProcessValue", mock.Mock())
         utils.getProcessValue.side_effect = lambda x, y: defer.succeed(0)
 

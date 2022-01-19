@@ -296,12 +296,14 @@ class EC2LatentWorker(AbstractLatentWorker):
     def _convert_deprecated_block_device_mapping(self, mapping_definitions):
         new_mapping_definitions = []
         for dev_name, dev_config in iteritems(mapping_definitions):
-            new_dev_config = {}
-            new_dev_config['DeviceName'] = dev_name
+            new_dev_config = {'DeviceName': dev_name}
             if dev_config:
-                new_dev_config['Ebs'] = {}
-                new_dev_config['Ebs']['DeleteOnTermination'] = dev_config.get(
-                    'delete_on_termination', True)
+                new_dev_config['Ebs'] = {
+                    'DeleteOnTermination': dev_config.get(
+                        'delete_on_termination', True
+                    )
+                }
+
                 new_dev_config['Ebs'][
                     'Encrypted'] = dev_config.get('encrypted')
                 new_dev_config['Ebs']['Iops'] = dev_config.get('iops')
@@ -314,15 +316,6 @@ class EC2LatentWorker(AbstractLatentWorker):
                     new_dev_config['Ebs'])
             new_mapping_definitions.append(new_dev_config)
         return new_mapping_definitions
-        if not mapping_definitions:
-            return None
-
-        for mapping_definition in mapping_definitions:
-            ebs = mapping_definition.get('Ebs')
-            if ebs:
-                ebs.setdefault('DeleteOnTermination', True)
-
-        return mapping_definitions
 
     def get_image(self):
         # pylint: disable=too-many-nested-blocks
@@ -375,9 +368,7 @@ class EC2LatentWorker(AbstractLatentWorker):
         return options[-1][-1]
 
     def dns(self):
-        if self.instance is None:
-            return None
-        return self.instance.public_dns_name
+        return None if self.instance is None else self.instance.public_dns_name
     dns = property(dns)
 
     def start_instance(self, build):
@@ -390,7 +381,7 @@ class EC2LatentWorker(AbstractLatentWorker):
     def _remove_none_opts(self, *args, **opts):
         if args:
             opts = args[0]
-        return dict((k, v) for k, v in iteritems(opts) if v is not None)
+        return {k: v for k, v in iteritems(opts) if v is not None}
 
     def _start_instance(self):
         image = self.get_image()
@@ -483,11 +474,11 @@ class EC2LatentWorker(AbstractLatentWorker):
             if price['InstanceType'] == self.instance_type:
                 price_sum += float(price['SpotPrice'])
                 price_count += 1
-        if price_count == 0:
-            bid_price = 0.02
-        else:
-            bid_price = (price_sum / price_count) * self.price_multiplier
-        return bid_price
+        return (
+            0.02
+            if price_count == 0
+            else (price_sum / price_count) * self.price_multiplier
+        )
 
     def _request_spot_instance(self):
         if self.price_multiplier is None:
@@ -545,8 +536,7 @@ class EC2LatentWorker(AbstractLatentWorker):
         if self.instance.state['Name'] == RUNNING:
             self.properties.setProperty("instance", self.instance.id, "Worker")
             self.output = self.instance.console_output().get('Output')
-            minutes = duration // 60
-            seconds = duration % 60
+            minutes, seconds = divmod(duration, 60)
             log.msg('%s %s instance %s started on %s '
                     'in about %d minutes %d seconds (%s)' %
                     (self.__class__.__name__, self.workername,
@@ -581,8 +571,7 @@ class EC2LatentWorker(AbstractLatentWorker):
             request = requests['SpotInstanceRequests'][0]
             request_status = request['Status']['Code']
         if request_status == FULFILLED:
-            minutes = duration // 60
-            seconds = duration % 60
+            minutes, seconds = divmod(duration, 60)
             log.msg('%s %s spot request %s fulfilled '
                     'in about %d minutes %d seconds' %
                     (self.__class__.__name__, self.workername,

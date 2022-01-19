@@ -319,10 +319,7 @@ class BaseRequest(collections.MutableMapping, HeadersMixin):
         if ip is None:
             transport = self._transport
             peername = transport.get_extra_info('peername')
-            if isinstance(peername, (list, tuple)):
-                ip = peername[0]
-            else:
-                ip = peername
+            ip = peername[0] if isinstance(peername, (list, tuple)) else peername
         return ip
 
     @reify
@@ -602,7 +599,6 @@ class BaseRequest(collections.MutableMapping, HeadersMixin):
     @asyncio.coroutine
     def _prepare_hook(self, response):
         return
-        yield  # pragma: no cover
 
 
 class Request(BaseRequest):

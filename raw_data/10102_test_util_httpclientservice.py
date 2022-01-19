@@ -207,10 +207,7 @@ class MyResource(resource.Resource):
             elif isinstance(x, (list, tuple)):
                 return [bytes2NativeString(y) for y in x]
             elif isinstance(x, dict):
-                newArgs = {}
-                for a, b in iteritems(x):
-                    newArgs[decode(a)] = decode(b)
-                return newArgs
+                return {decode(a): decode(b) for a, b in iteritems(x)}
             return x
 
         args = decode(request.args)
@@ -327,12 +324,12 @@ class HTTPClientServiceTestTxRequestE2E(unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_lots(self):
-        for i in range(self.NUM_PARALLEL):
+        for _ in range(self.NUM_PARALLEL):
             self.expect('get', '/', params=dict(a='b'),
                         content_json=dict(a=['b']))
         # use for benchmarking (txrequests: 3ms per request treq: 1ms per
         # request)
-        for i in range(self.NUM_PARALLEL):
+        for _ in range(self.NUM_PARALLEL):
             res = yield self._http.get('/', params=dict(a='b'))
             content = yield res.content()
             self.assertEqual(content, b'{"a": ["b"]}')

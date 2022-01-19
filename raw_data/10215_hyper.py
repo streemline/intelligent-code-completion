@@ -106,9 +106,7 @@ class HyperLatentWorker(DockerBaseWorker):
 
     @property
     def client(self):
-        if self.manager is None:
-            return None
-        return self.manager.client
+        return None if self.manager is None else self.manager.client
 
     @defer.inlineCallbacks
     def reconfigService(self, name, password, hyper_host,

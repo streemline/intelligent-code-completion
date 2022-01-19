@@ -135,9 +135,7 @@ class AbstractWorker(service.BuildbotService, object):
 
     @property
     def botmaster(self):
-        if self.master is None:
-            return None
-        return self.master.botmaster
+        return None if self.master is None else self.master.botmaster
 
     def updateLocks(self):
         """Convert the L{LockAccess} objects in C{self.locks} into real lock
@@ -160,10 +158,7 @@ class AbstractWorker(service.BuildbotService, object):
         """
         if not self.locks:
             return True
-        for lock, access in self.locks:
-            if not lock.isAvailable(self, access):
-                return False
-        return True
+        return all(lock.isAvailable(self, access) for lock, access in self.locks)
 
     def acquireLocks(self):
         """
@@ -331,10 +326,7 @@ class AbstractWorker(service.BuildbotService, object):
 
         @return: a Deferred that indicates when an attached worker has
         accepted the new builders and/or released the old ones."""
-        if self.conn:
-            return self.sendBuilderList()
-        # else:
-        return defer.succeed(None)
+        return self.sendBuilderList() if self.conn else defer.succeed(None)
 
     @defer.inlineCallbacks
     def attached(self, conn):

@@ -41,9 +41,11 @@ PATH_SEP = re.escape('/')
 
 class RouteDef(namedtuple('_RouteDef', 'method, path, handler, kwargs')):
     def __repr__(self):
-        info = []
-        for name, value in sorted(self.kwargs.items()):
-            info.append(", {}={!r}".format(name, value))
+        info = [
+            ", {}={!r}".format(name, value)
+            for name, value in sorted(self.kwargs.items())
+        ]
+
         return ("<RouteDef {method} {path} -> {handler.__name__!r}"
                 "{info}>".format(method=self.method, path=self.path,
                                  handler=self.handler, info=''.join(info)))
@@ -272,7 +274,7 @@ class Resource(AbstractResource):
                   expect_handler=None):
 
         for route in self._routes:
-            if route.method == method or route.method == hdrs.METH_ANY:
+            if route.method in [method, hdrs.METH_ANY]:
                 raise RuntimeError("Added route will never be executed, "
                                    "method {route.method} is "
                                    "already registered".format(route=route))
@@ -299,13 +301,9 @@ class Resource(AbstractResource):
             route_method = route.method
             allowed_methods.add(route_method)
 
-            if (route_method == request._method or
-                    route_method == hdrs.METH_ANY):
+            if route_method in [request._method, hdrs.METH_ANY]:
                 return UrlMappingMatchInfo(match_dict, route), allowed_methods
-        else:
-            return None, allowed_methods
-
-        yield  # pragma: no cover
+        return None, allowed_methods
 
     def __len__(self):
         return len(self._routes)
@@ -333,10 +331,7 @@ class PlainResource(Resource):
 
     def _match(self, path):
         # string comparison is about 10 times faster than regexp matching
-        if self._path == path:
-            return {}
-        else:
-            return None
+        return {} if self._path == path else None
 
     def get_info(self):
         return {'path': self._path}
@@ -543,7 +538,6 @@ class StaticResource(PrefixResource):
         match_dict = {'filename': unquote(path[len(self._prefix)+1:])}
         return (UrlMappingMatchInfo(match_dict, self._routes[method]),
                 allowed_methods)
-        yield  # pragma: no cover
 
     def __len__(self):
         return len(self._routes)
@@ -568,13 +562,12 @@ class StaticResource(PrefixResource):
 
         # on opening a dir, load it's contents if allowed
         if filepath.is_dir():
-            if self._show_index:
-                try:
-                    ret = Response(text=self._directory_as_html(filepath),
-                                   content_type="text/html")
-                except PermissionError:
-                    raise HTTPForbidden()
-            else:
+            if not self._show_index:
+                raise HTTPForbidden()
+            try:
+                ret = Response(text=self._directory_as_html(filepath),
+                               content_type="text/html")
+            except PermissionError:
                 raise HTTPForbidden()
         elif filepath.is_file():
             ret = FileResponse(filepath, chunk_size=self._chunk_size)
@@ -601,11 +594,7 @@ class StaticResource(PrefixResource):
             file_url = self._prefix + '/' + rel_path
 
             # if file is a directory, add '/' to the end of the name
-            if _file.is_dir():
-                file_name = "{}/".format(_file.name)
-            else:
-                file_name = _file.name
-
+            file_name = "{}/".format(_file.name) if _file.is_dir() else _file.name
             index_list.append(
                 '<li><a href="{url}">{name}</a></li>'.format(url=file_url,
                                                              name=file_name)
@@ -613,9 +602,7 @@ class StaticResource(PrefixResource):
         ul = "<ul>\n{}\n</ul>".format('\n'.join(index_list))
         body = "<body>\n{}\n{}\n</body>".format(h1, ul)
 
-        html = "<html>\n{}\n{}\n</html>".format(head, body)
-
-        return html
+        return "<html>\n{}\n{}\n</html>".format(head, body)
 
     def __repr__(self):
         name = "'" + self.name + "'" if self.name is not None else ""
@@ -746,8 +733,7 @@ class View(AbstractView):
         method = getattr(self, self.request._method.lower(), None)
         if method is None:
             self._raise_allowed_methods()
-        resp = yield from method()
-        return resp
+        return (yield from method())
 
     if helpers.PY_35:
         def __await__(self):
@@ -812,12 +798,11 @@ class UrlDispatcher(AbstractRouter, collections.abc.Mapping):
                 return match_dict
             else:
                 allowed_methods |= allowed
+        if allowed_methods:
+            return MatchInfoError(HTTPMethodNotAllowed(method,
+                                                       allowed_methods))
         else:
-            if allowed_methods:
-                return MatchInfoError(HTTPMethodNotAllowed(method,
-                                                           allowed_methods))
-            else:
-                return MatchInfoError(HTTPNotFound())
+            return MatchInfoError(HTTPNotFound())
 
     def __iter__(self):
         return iter(self._named_resources)

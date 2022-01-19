@@ -128,8 +128,7 @@ class TestFileUpload(steps.BuildStepMixin, unittest.TestCase):
 
         self.expectOutcome(
             result=SUCCESS, state_string="uploading srcfile")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testWorker2_16(self):
         self.setupStep(
@@ -146,8 +145,7 @@ class TestFileUpload(steps.BuildStepMixin, unittest.TestCase):
 
         self.expectOutcome(
             result=SUCCESS, state_string="uploading srcfile")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testTimestamp(self):
         self.setupStep(
@@ -201,8 +199,7 @@ class TestFileUpload(steps.BuildStepMixin, unittest.TestCase):
             result=SUCCESS,
             state_string="Test File Uploaded")
 
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testURL(self):
         self.setupStep(
@@ -270,8 +267,7 @@ class TestFileUpload(steps.BuildStepMixin, unittest.TestCase):
         self.expectOutcome(
             result=FAILURE,
             state_string="uploading srcfile (failure)")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testException(self):
         self.setupStep(
@@ -367,8 +363,7 @@ class TestDirectoryUpload(steps.BuildStepMixin, unittest.TestCase):
 
         self.expectOutcome(result=SUCCESS,
                            state_string="uploading srcdir")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testWorker2_16(self):
         self.setupStep(
@@ -386,8 +381,7 @@ class TestDirectoryUpload(steps.BuildStepMixin, unittest.TestCase):
 
         self.expectOutcome(result=SUCCESS,
                            state_string="uploading srcdir")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testFailure(self):
         self.setupStep(
@@ -402,8 +396,7 @@ class TestDirectoryUpload(steps.BuildStepMixin, unittest.TestCase):
 
         self.expectOutcome(result=FAILURE,
                            state_string="uploading srcdir (failure)")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testException(self):
         self.setupStep(
@@ -494,8 +487,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
         self.expectCommands()
 
         self.expectOutcome(result=SKIPPED, state_string="finished (skipped)")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testFile(self):
         self.setupStep(
@@ -514,8 +506,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
             + 0)
 
         self.expectOutcome(result=SUCCESS, state_string="uploading 1 file")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testDirectory(self):
         self.setupStep(
@@ -534,8 +525,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
             + 0)
 
         self.expectOutcome(result=SUCCESS, state_string="uploading 1 file")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testMultiple(self):
         self.setupStep(
@@ -565,8 +555,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
 
         self.expectOutcome(
             result=SUCCESS, state_string="uploading 2 files")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testMultipleString(self):
         self.setupStep(
@@ -584,8 +573,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
             + 0)
         self.expectOutcome(
             result=SUCCESS, state_string="uploading 1 file")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testGlob(self):
         self.setupStep(
@@ -608,8 +596,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
         )
         self.expectOutcome(
             result=SUCCESS, state_string="uploading 1 file")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testFailedGlob(self):
         self.setupStep(
@@ -621,8 +608,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
             + 1,
         )
         self.expectOutcome(result=SKIPPED, state_string="uploading 0 files (skipped)")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testFileWorker2_16(self):
         self.setupStep(
@@ -643,8 +629,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
             + 0)
 
         self.expectOutcome(result=SUCCESS, state_string="uploading 1 file")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testDirectoryWorker2_16(self):
         self.setupStep(
@@ -665,8 +650,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
             + 0)
 
         self.expectOutcome(result=SUCCESS, state_string="uploading 1 file")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testMultipleWorker2_16(self):
         self.setupStep(
@@ -698,8 +682,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
 
         self.expectOutcome(
             result=SUCCESS, state_string="uploading 2 files")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testFailure(self):
         self.setupStep(
@@ -718,8 +701,7 @@ class TestMultipleFileUpload(steps.BuildStepMixin, unittest.TestCase):
 
         self.expectOutcome(
             result=FAILURE, state_string="uploading 2 files (failure)")
-        d = self.runStep()
-        return d
+        return self.runStep()
 
     def testException(self):
         self.setupStep(
@@ -1198,8 +1180,8 @@ class TestJSONPropertiesDownload(unittest.TestCase):
         for c in s.remote.method_calls:
             name, command, args = c
             commandName = command[3]
-            kwargs = command[-1]
             if commandName == 'downloadFile':
+                kwargs = command[-1]
                 self.assertEqual(kwargs['workerdest'], 'props.json')
                 reader = kwargs['reader']
                 data = reader.remote_read(100)
@@ -1230,8 +1212,8 @@ class TestJSONPropertiesDownload(unittest.TestCase):
         for c in s.remote.method_calls:
             name, command, args = c
             commandName = command[3]
-            kwargs = command[-1]
             if commandName == 'downloadFile':
+                kwargs = command[-1]
                 self.assertEqual(kwargs['slavedest'], 'props.json')
                 reader = kwargs['reader']
                 data = reader.remote_read(100)

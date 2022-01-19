@@ -88,8 +88,7 @@ class RamlSpec(object):
         return self.reindent(j, indent)
 
     def parse_types(self):
-        types = self.api['types']
-        return types
+        return self.api['types']
 
     def iter_actions(self, endpoint):
         ACTIONS_MAGIC = '/actions/'

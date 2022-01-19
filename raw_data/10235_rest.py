@@ -92,9 +92,12 @@ class RestRootResource(resource.Resource):
     def render(self, request):
         request.setHeader(b"content-type", JSON_ENCODED)
         min_vers = self.master.config.www.get('rest_minimum_version', 0)
-        api_versions = dict(('v%d' % v, '%sapi/v%d' % (self.base_url, v))
-                            for v in self.version_classes
-                            if v > min_vers)
+        api_versions = {
+            'v%d' % v: '%sapi/v%d' % (self.base_url, v)
+            for v in self.version_classes
+            if v > min_vers
+        }
+
         data = json.dumps(dict(api_versions=api_versions))
         return unicode2bytes(data)
 
@@ -477,12 +480,10 @@ class V2RootResource(resource.Resource):
             if request.method == b'POST':
                 # jsonRPC callers want the error message in error.message
                 data = json.dumps(dict(error=dict(message=msg)))
-                data = unicode2bytes(data)
-                request.write(data)
             else:
                 data = json.dumps(dict(error=msg))
-                data = unicode2bytes(data)
-                request.write(data)
+            data = unicode2bytes(data)
+            request.write(data)
             request.finish()
         return self.asyncRenderHelper(request, self.asyncRender, writeError)
 

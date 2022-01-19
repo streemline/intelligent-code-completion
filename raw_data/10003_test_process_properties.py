@@ -57,14 +57,13 @@ class FakeSource:
         self.revision = None
 
     def asDict(self):
-        ds = {
+        return {
             'branch': self.branch,
             'codebase': self.codebase,
             'project': self.project,
             'repository': self.repository,
             'revision': self.revision
         }
-        return ds
 
 
 @implementer(IRenderable)
@@ -1297,15 +1296,13 @@ class TestProperty(unittest.TestCase):
     @defer.inlineCallbacks
     def testStringCompEq(self):
         self.props.setProperty("do-tests", "string", "scheduler")
-        test_string = "string"
-        result = yield self.build.render(test_string == Property("do-tests"))
+        result = yield self.build.render(Property("do-tests") == "string")
         self.assertEqual(result, True)
 
     @defer.inlineCallbacks
     def testIntCompLe(self):
         self.props.setProperty("do-tests", 1, "scheduler")
-        test_int = 1
-        result = yield self.build.render(test_int <= Property("do-tests"))
+        result = yield self.build.render(Property("do-tests") >= 1)
         self.assertEqual(result, True)
 
     @defer.inlineCallbacks

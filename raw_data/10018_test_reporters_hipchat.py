@@ -143,7 +143,7 @@ class TestHipchatStatusPush(unittest.TestCase, ReporterTestMixin, LoggingMixin):
         self.sp.getBuildDetailsAndSendMessage = Mock()
         message = {'message': 'hi'}
         postData = dict(message)
-        postData.update({'id_or_email': '123'})
+        postData['id_or_email'] = '123'
         self.sp.getBuildDetailsAndSendMessage.return_value = postData
         self._http.expect(
             'post',
@@ -160,7 +160,7 @@ class TestHipchatStatusPush(unittest.TestCase, ReporterTestMixin, LoggingMixin):
         self.sp.getBuildDetailsAndSendMessage = Mock()
         message = {'message': 'hi'}
         postData = dict(message)
-        postData.update({'room_id_or_name': '123'})
+        postData['room_id_or_name'] = '123'
         self.sp.getBuildDetailsAndSendMessage.return_value = postData
         self._http.expect(
             'post',
@@ -199,7 +199,7 @@ class TestHipchatStatusPush(unittest.TestCase, ReporterTestMixin, LoggingMixin):
         self.sp.getBuildDetailsAndSendMessage = Mock()
         message = {'message': 'hi', 'notify': True, 'message_format': 'html'}
         postData = dict(message)
-        postData.update({'id_or_email': '123'})
+        postData['id_or_email'] = '123'
         self.sp.getBuildDetailsAndSendMessage.return_value = postData
         self._http.expect(
             'post',
@@ -216,7 +216,7 @@ class TestHipchatStatusPush(unittest.TestCase, ReporterTestMixin, LoggingMixin):
         self.sp.getBuildDetailsAndSendMessage = Mock()
         message = {'message': 'hi', 'notify': True, 'message_format': 'html'}
         postData = dict(message)
-        postData.update({'id_or_email': '123'})
+        postData['id_or_email'] = '123'
         self.sp.getBuildDetailsAndSendMessage.return_value = postData
         self._http.expect(
             'post',

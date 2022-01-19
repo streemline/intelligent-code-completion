@@ -76,8 +76,7 @@ def flattened_iterator(l, types=(list, tuple)):
         return
 
     for element in l:
-        for sub_element in flattened_iterator(element, types):
-            yield sub_element
+        yield from flattened_iterator(element, types)
 
 
 def flatten(l, types=(list, )):
@@ -90,9 +89,7 @@ def flatten(l, types=(list, )):
     """
     # For backwards compatibility, this returned a list, not an iterable.
     # Changing to return an iterable could break things.
-    if not isinstance(l, types):
-        return l
-    return list(flattened_iterator(l, types))
+    return l if not isinstance(l, types) else list(flattened_iterator(l, types))
 
 
 def now(_reactor=None):
@@ -211,9 +208,7 @@ def safeTranslate(s):
 
 
 def encodeString(s, encoding='utf-8'):
-    if isinstance(s, text_type):
-        return s.encode(encoding)
-    return s
+    return s.encode(encoding) if isinstance(s, text_type) else s
 
 
 def none_or_str(x):
@@ -466,14 +461,13 @@ def command_to_string(command):
             stringWords.append(w)
     words = stringWords
 
-    if len(words) < 1:
+    if not words:
         return None
-    if len(words) < 3:
-        rv = "'%s'" % (' '.join(words))
-    else:
-        rv = "'%s ...'" % (' '.join(words[:2]))
-
-    return rv
+    return (
+        "'%s'" % (' '.join(words))
+        if len(words) < 3
+        else "'%s ...'" % (' '.join(words[:2]))
+    )
 
 
 def rewrap(text, width=None):

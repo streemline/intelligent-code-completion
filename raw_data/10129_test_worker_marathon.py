@@ -29,9 +29,7 @@ from buildbot.worker.marathon import MarathonLatentWorker
 
 class FakeBuild(object):
     def render(self, r):
-        if isinstance(r, str):
-            return "rendered:" + r
-        return r
+        return "rendered:" + r if isinstance(r, str) else r
 
 
 class FakeBot(object):

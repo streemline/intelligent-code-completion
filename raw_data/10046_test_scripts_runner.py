@@ -43,11 +43,8 @@ class OptionsMixin(object):
     def assertOptions(self, opts, exp):
         got = dict([(k, opts[k]) for k in exp])
         if got != exp:
-            msg = []
-            for k in exp:
-                if opts[k] != exp[k]:
-                    msg.append(" %s: expected %r, got %r" %
-                               (k, exp[k], opts[k]))
+            msg = [" %s: expected %r, got %r" %
+                               (k, exp[k], opts[k]) for k in exp if opts[k] != exp[k]]
             self.fail("did not get expected options\n" + ("\n".join(msg)))
 
 

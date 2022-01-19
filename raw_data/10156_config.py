@@ -32,9 +32,8 @@ class ConfigErrorsMixin(object):
                 if substr_or_re not in curr_error:
                     self.fail("non-matching error: %s, "
                               "expected: %s" % (curr_error, substr_or_re))
-            else:
-                if not substr_or_re.search(curr_error):
-                    self.fail("non-matching error: %s" % (curr_error,))
+            elif not substr_or_re.search(curr_error):
+                self.fail("non-matching error: %s" % (curr_error,))
 
     def assertRaisesConfigError(self, substr_or_re, fn):
         try:

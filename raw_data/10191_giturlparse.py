@@ -39,10 +39,7 @@ def giturlparse(url):
         if port is not None:
             port = int(port)
         proto = res.group("proto")
-        if proto:
-            proto = proto[:-3]
-        else:
-            proto = 'ssh'  # implicit proto is ssh
+        proto = proto[:-3] if proto else 'ssh'
         return GitUrl(
             proto, res.group('user'),
             res.group("domain"), port, res.group("owner"),

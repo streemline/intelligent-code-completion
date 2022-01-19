@@ -178,13 +178,18 @@ class TestGerritStatusPush(unittest.TestCase, ReporterTestMixin):
         defer.returnValue((buildset, builds))
 
     def makeBuildInfo(self, buildResults, resultText, builds):
-        info = []
-        for i in range(len(buildResults)):
-            info.append({'name': u"Builder%d" % i, 'result': buildResults[i],
-                         'resultText': resultText[i], 'text': u'buildText',
-                         'url': "http://localhost:8080/#builders/%d/builds/%d" % (79 + i, i),
-                         'build': builds[i]})
-        return info
+        return [
+            {
+                'name': u"Builder%d" % i,
+                'result': buildResults[i],
+                'resultText': resultText[i],
+                'text': u'buildText',
+                'url': "http://localhost:8080/#builders/%d/builds/%d"
+                % (79 + i, i),
+                'build': builds[i],
+            }
+            for i in range(len(buildResults))
+        ]
 
     @defer.inlineCallbacks
     def run_fake_summary_build(self, gsp, buildResults, finalResult,
@@ -269,55 +274,48 @@ class TestGerritStatusPush(unittest.TestCase, ReporterTestMixin):
         self.assertEqual(expected2, with_identity._gerritCmd('foo'))
 
     def test_buildsetComplete_success_sends_summary_review_deferred(self):
-        d = self.check_summary_build_deferred(buildResults=[SUCCESS, SUCCESS],
+        return self.check_summary_build_deferred(buildResults=[SUCCESS, SUCCESS],
                                               finalResult=SUCCESS,
                                               resultText=[
                                                   "succeeded", "succeeded"],
                                               verifiedScore=1)
-        return d
 
     def test_buildsetComplete_success_sends_summary_review(self):
-        d = self.check_summary_build(buildResults=[SUCCESS, SUCCESS],
+        return self.check_summary_build(buildResults=[SUCCESS, SUCCESS],
                                      finalResult=SUCCESS,
                                      resultText=["succeeded", "succeeded"],
                                      verifiedScore=1)
-        return d
 
     def test_buildsetComplete_failure_sends_summary_review(self):
-        d = self.check_summary_build(buildResults=[FAILURE, FAILURE],
+        return self.check_summary_build(buildResults=[FAILURE, FAILURE],
                                      finalResult=FAILURE,
                                      resultText=["failed", "failed"],
                                      verifiedScore=-1)
-        return d
 
     def test_buildsetComplete_mixed_sends_summary_review(self):
-        d = self.check_summary_build(buildResults=[SUCCESS, FAILURE],
+        return self.check_summary_build(buildResults=[SUCCESS, FAILURE],
                                      finalResult=FAILURE,
                                      resultText=["succeeded", "failed"],
                                      verifiedScore=-1)
-        return d
 
     def test_buildsetComplete_success_sends_summary_review_legacy(self):
-        d = self.check_summary_build_legacy(buildResults=[SUCCESS, SUCCESS],
+        return self.check_summary_build_legacy(buildResults=[SUCCESS, SUCCESS],
                                             finalResult=SUCCESS,
                                             resultText=[
                                                 "succeeded", "succeeded"],
                                             verifiedScore=1)
-        return d
 
     def test_buildsetComplete_failure_sends_summary_review_legacy(self):
-        d = self.check_summary_build_legacy(buildResults=[FAILURE, FAILURE],
+        return self.check_summary_build_legacy(buildResults=[FAILURE, FAILURE],
                                             finalResult=FAILURE,
                                             resultText=["failed", "failed"],
                                             verifiedScore=-1)
-        return d
 
     def test_buildsetComplete_mixed_sends_summary_review_legacy(self):
-        d = self.check_summary_build_legacy(buildResults=[SUCCESS, FAILURE],
+        return self.check_summary_build_legacy(buildResults=[SUCCESS, FAILURE],
                                             finalResult=FAILURE,
                                             resultText=["succeeded", "failed"],
                                             verifiedScore=-1)
-        return d
 
     @defer.inlineCallbacks
     def test_buildsetComplete_filtered_builder(self):

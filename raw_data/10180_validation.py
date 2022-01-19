@@ -131,8 +131,7 @@ class NoneOk(object):
         if object is None:
             return
         else:
-            for msg in self.original.validate(name, object):
-                yield msg
+            yield from self.original.validate(name, object)
 
 
 class Any(object):
@@ -174,8 +173,7 @@ class DictValidator(Validator):
                                              ", ".join([repr(n) for n in missing]))
 
         for k in gotNames & self.expectedNames:
-            for msg in self.keys[k].validate("%s[%r]" % (name, k), object[k]):
-                yield msg
+            yield from self.keys[k].validate("%s[%r]" % (name, k), object[k])
 
 
 class SequenceValidator(Validator):
@@ -190,9 +188,8 @@ class SequenceValidator(Validator):
             return
 
         for idx, elt in enumerate(object):
-            for msg in self.elementValidator.validate("%s[%d]" % (name, idx),
-                                                      elt):
-                yield msg
+            yield from self.elementValidator.validate("%s[%d]" % (name, idx),
+                                                      elt)
 
 
 class ListValidator(SequenceValidator):
@@ -259,8 +256,7 @@ class PatchValidator(Validator):
     )
 
     def validate(self, name, object):
-        for msg in self.validator.validate(name, object):
-            yield msg
+        yield from self.validator.validate(name, object)
 
 
 class MessageValidator(Validator):
@@ -286,9 +282,8 @@ class MessageValidator(Validator):
             if event not in self.events:
                 yield "routing key event %r is not valid" % (event,)
 
-        for msg in self.messageValidator.validate("%s message" % routingKey[0],
-                                                  message):
-            yield msg
+        yield from self.messageValidator.validate("%s message" % routingKey[0],
+                                                  message)
 
 
 class Selector(Validator):
@@ -306,22 +301,14 @@ class Selector(Validator):
             yield "%r: not a not data options and data dict: %s" % (arg_object, e)
         for selector, validator in self.selectors:
             if selector is None or selector(arg):
-                for msg in validator.validate(name, object):
-                    yield msg
+                yield from validator.validate(name, object)
                 return
         yield "no match for selector argument %r" % (arg,)
 
 
 # Type definitions
 
-message = {}
-dbdict = {}
-
-# parse and use a ResourceType class's dataFields into a validator
-
-# masters
-
-message['masters'] = Selector()
+message = {'masters': Selector()}
 message['masters'].add(None,
                        MessageValidator(
                            events=[b'started', b'stopped'],
@@ -332,12 +319,14 @@ message['masters'].add(None,
                                # last_active is not included
                            )))
 
-dbdict['masterdict'] = DictValidator(
-    id=IntValidator(),
-    name=StringValidator(),
-    active=BooleanValidator(),
-    last_active=DateTimeValidator(),
-)
+dbdict = {
+    'masterdict': DictValidator(
+        id=IntValidator(),
+        name=StringValidator(),
+        active=BooleanValidator(),
+        last_active=DateTimeValidator(),
+    )
+}
 
 # sourcestamp
 
